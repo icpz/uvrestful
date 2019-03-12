@@ -1,17 +1,16 @@
 #ifndef __UVRESTFUL_HTTP_REQUEST_H__
 #define __UVRESTFUL_HTTP_REQUEST_H__
 
-#include <uthash.h>
 #include <utstring.h>
 #include <utarray.h>
 
-#include "fields.h"
+#include "uvrestful/http/fields.h"
 
 typedef enum {
-    UVR_GET,
-    UVR_POST,
-    UVR_DELETE,
-    UVR_PUT
+    UVR_METHOD_GET,
+    UVR_METHOD_POST,
+    UVR_METHOD_DELETE,
+    UVR_METHOD_PUT
 } uvr_http_method;
 
 typedef struct {
@@ -21,15 +20,15 @@ typedef struct {
     uvr_http_fields *fields;
 } uvr_http_request_header;
 
+uvr_http_request_header *uvr_http_request_header_new();
+void uvr_http_request_header_drop(uvr_http_request_header *hdr);
+
 typedef struct {
-    uvr_http_request_header header;
+    uvr_http_request_header *header;
     UT_array *body;
 } uvr_http_request;
 
-uvr_http_method uvr_http_request_method(const uvr_http_request *req);
-const char *uvr_http_request_uri(const uvr_http_request *req);
-const char *uvr_http_request_field(const uvr_http_request *req);
-const uint8_t *uvr_http_request_body(const uvr_http_request *req);
-size_t *uvr_http_request_body_size(const uvr_http_request *req);
+uvr_http_request *uvr_http_request_new();
+void uvr_http_request_drop(uvr_http_request *req);
 
 #endif // __UVRESTFUL_HTTP_REQUEST_H__
