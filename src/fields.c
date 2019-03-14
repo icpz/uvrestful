@@ -40,6 +40,11 @@ uvr_http_fields *uvr_http_fields_new() {
     return p;
 }
 
+void uvr_http_fields_drop(uvr_http_fields *fields) {
+    uvr_http_fields_clear(fields);
+    free(fields);
+}
+
 void uvr_http_fields_clear(uvr_http_fields *fields) {
     __http_fields_node *p, *tmp = NULL;
     HASH_ITER(hh, fields->head, p, tmp) {
@@ -48,9 +53,41 @@ void uvr_http_fields_clear(uvr_http_fields *fields) {
     }
 }
 
-void uvr_http_fields_drop(uvr_http_fields *fields) {
-    uvr_http_fields_clear(fields);
-    free(fields);
+static const char *__strnchr(const char *s, size_t len, int c) {
+    size_t i = 0;
+    while (i < len && s[i] != c) {
+        ++i;
+    }
+    if (i < len) {
+        return s + i;
+    }
+    return NULL;
+}
+
+void uvr_http_fields_parse_header(uvr_http_fields *f, const char *line, size_t len, int *err) {
+    *err = 0;
+    UT_string key, value;
+    utstring_init(&key);
+    utstring_init(&value);
+
+    char *colon = __strnchr(line, len, ':');
+    if (!colon) {
+        *err = 1;
+        return;
+    }
+    utstring_bincpy(&key, line, colon - line);
+
+    ++colon;
+    while (colon < line + len && line[colon] != ' ') {
+        ++colon;
+    }
+    if (colon >= line + len) {
+        *err = 1;
+        return;
+    }
+    utstring_bincpy(&value, colon, line + len - colon);
+
+    uvr_http_fields_set(f, utstring_body(&key), utstring_body(&value));
 }
 
 void uvr_http_fields_set(uvr_http_fields *fields, const char *key, const char *value) {
