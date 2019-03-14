@@ -68,7 +68,7 @@ static const uint8_t *__find_line_end(UT_array *a, int *invalid) {
 }
 
 static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p, int *done) {
-    uvr_http_request_parser_error ret = UVR_HTTP_PARSER_PARTIAL;
+    uvr_http_request_parser_error ret = UVR_HTTP_REQ_PARSER_PARTIAL;
     const uint8_t *pos = NULL;
     int err = 0;
     *done = 0;
@@ -86,7 +86,7 @@ static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p
 
             p->request->header->method = uvr_http_method_from_string(head, method_len);
             if (p->request->header->method == UVR_METHOD_UNKNOWN) {
-                ret = UVR_HTTP_PARSER_EMETHOD;
+                ret = UVR_HTTP_REQ_PARSER_EMETHOD;
                 goto __next_stage_end;
             }
             utarray_erase(p->buffer, 0, method_len + 1);
@@ -107,7 +107,7 @@ static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p
     case PARSING_VERSION:
         pos = __find_line_end(p->buffer, &err);
         if (err) {
-            ret = UVR_HTTP_PARSER_ECHARACTER;
+            ret = UVR_HTTP_REQ_PARSER_ECHARACTER;
             goto __next_stage_end;
         }
         if (pos) {
@@ -123,7 +123,7 @@ static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p
     case PARSING_FIELDS:
         pos = __find_line_end(p->buffer, &err);
         if (err) {
-            ret = UVR_HTTP_PARSER_ECHARACTER;
+            ret = UVR_HTTP_REQ_PARSER_ECHARACTER;
             goto __next_stage_end;
         }
         if (pos) {
@@ -138,7 +138,7 @@ static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p
                 p->state = PARSING_FIELDS;
                 uvr_http_fields_parse_header(p->request->header->fields, (const char *)head, field_len, &err);
                 if (err) {
-                    ret = UVR_HTTP_PARSER_ECHARACTER;
+                    ret = UVR_HTTP_REQ_PARSER_ECHARACTER;
                     goto __next_stage_end;
                 }
             }
@@ -147,7 +147,7 @@ static uvr_http_request_parser_error __try_next_stage(uvr_http_request_parser *p
         break;
     case PARSING_DONE:
         *done = 1;
-        ret = UVR_HTTP_PARSER_OK;
+        ret = UVR_HTTP_REQ_PARSER_OK;
         utarray_concat(p->request->body, p->buffer);
         utarray_clear(p->buffer);
         break;
@@ -160,12 +160,12 @@ __next_stage_end:
 
 uvr_http_request_parser_error \
     uvr_http_request_parser_update(uvr_http_request_parser *p, const uint8_t *data, size_t len) {
-        uvr_http_request_parser_error ret = UVR_HTTP_PARSER_PARTIAL;
+        uvr_http_request_parser_error ret = UVR_HTTP_REQ_PARSER_PARTIAL;
         int i, done;
         for (i = 0; i < len; ++i) {
             utarray_push_back(p->buffer, data + i);
         }
-        while ((ret = __try_next_stage(p, &done)) == UVR_HTTP_PARSER_PARTIAL) {
+        while ((ret = __try_next_stage(p, &done)) == UVR_HTTP_REQ_PARSER_PARTIAL) {
             if (!done) {
                 break;
             }

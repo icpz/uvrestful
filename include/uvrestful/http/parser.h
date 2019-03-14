@@ -4,12 +4,12 @@
 #include "uvrestful/http/request.h"
 
 typedef enum {
-    UVR_HTTP_PARSER_OK,
-    UVR_HTTP_PARSER_PARTIAL,
-    UVR_HTTP_PARSER_ERROR_START, /* should never be used */
-    UVR_HTTP_PARSER_EMETHOD,
-    UVR_HTTP_PARSER_EVERSION,
-    UVR_HTTP_PARSER_ECHARACTER
+    UVR_HTTP_REQ_PARSER_OK,
+    UVR_HTTP_REQ_PARSER_PARTIAL,
+    UVR_HTTP_REQ_PARSER_ERROR_START, /* should never be used */
+    UVR_HTTP_REQ_PARSER_EMETHOD,
+    UVR_HTTP_REQ_PARSER_EVERSION,
+    UVR_HTTP_REQ_PARSER_ECHARACTER
 } uvr_http_request_parser_error;
 
 typedef struct uvr_http_request_parser_s uvr_http_request_parser;
