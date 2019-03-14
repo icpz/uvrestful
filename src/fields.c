@@ -8,13 +8,13 @@
 #define HASH_FUNCTION(keyptr, keylen, hashv) \
     HASH_JEN(utstring_body(keyptr), utstring_len(keyptr), hashv)
 #define HASH_KEYCMP(a, b, n) \
-    memcpy(utstring_body(a), utstring_body(b), utstring_len(a))
+    memcpy(utstring_body((UT_string *)a), utstring_body((UT_string *)b), utstring_len((UT_string *)a))
 #include <uthash.h>
 
 typedef struct __http_fields_node_s {
-    UT_hash_handle hh,
-    UT_string *key,
-    UT_string *value
+    UT_hash_handle hh;
+    UT_string *key;
+    UT_string *value;
 } __http_fields_node;
 
 static __http_fields_node *__http_fields_node_new() {
@@ -22,6 +22,7 @@ static __http_fields_node *__http_fields_node_new() {
     memset(result, 0, sizeof *result);
     utstring_new(result->key);
     utstring_new(result->value);
+    return result;
 }
 
 static void __http_fields_node_drop(__http_fields_node *p) {
@@ -70,7 +71,7 @@ void uvr_http_fields_parse_header(uvr_http_fields *f, const char *line, size_t l
     utstring_init(&key);
     utstring_init(&value);
 
-    char *colon = __strnchr(line, len, ':');
+    const char *colon = __strnchr(line, len, ':');
     if (!colon) {
         *err = 1;
         return;
@@ -78,7 +79,7 @@ void uvr_http_fields_parse_header(uvr_http_fields *f, const char *line, size_t l
     utstring_bincpy(&key, line, colon - line);
 
     ++colon;
-    while (colon < line + len && line[colon] != ' ') {
+    while (colon < line + len && *colon == ' ') {
         ++colon;
     }
     if (colon >= line + len) {
