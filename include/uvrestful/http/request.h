@@ -11,7 +11,8 @@ typedef enum {
     UVR_METHOD_GET,
     UVR_METHOD_POST,
     UVR_METHOD_DELETE,
-    UVR_METHOD_PUT
+    UVR_METHOD_PUT,
+    UVR_METHOD_HEAD
 } uvr_http_method;
 
 uvr_http_method uvr_http_method_from_string(const void *m, size_t len);

@@ -13,6 +13,8 @@ uvr_http_method uvr_http_method_from_string(const void *m, size_t len) {
         result = UVR_METHOD_DELETE;
     } else if (strncmp("PUT", m, len) == 0) {
         result = UVR_METHOD_PUT;
+    } else if (strncmp("HEAD", m, len) == 0) {
+        result = UVR_METHOD_HEAD;
     }
     return result;
 }
