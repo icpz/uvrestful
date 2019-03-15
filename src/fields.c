@@ -121,9 +121,9 @@ size_t uvr_http_fields_size(const uvr_http_fields *fields) {
     return HASH_CNT(hh, fields->head);
 }
 
-void uvr_http_fields_walk(const uvr_http_fields *fields, uvr_http_fields_walk_cb cb) {
+void uvr_http_fields_walk(const uvr_http_fields *fields, uvr_http_fields_walk_cb cb, void *arg) {
     __http_fields_node *p, *tmp = NULL;
     HASH_ITER(hh, fields->head, p, tmp) {
-        cb(utstring_body(p->key), utstring_body(p->value));
+        cb(utstring_body(p->key), utstring_body(p->value), arg);
     }
 }
