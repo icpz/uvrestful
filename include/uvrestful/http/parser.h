@@ -19,5 +19,6 @@ void uvr_http_request_parser_drop(uvr_http_request_parser *parser);
 uvr_http_request_parser_error \
     uvr_http_request_parser_update(uvr_http_request_parser *p, const uint8_t *data, size_t len);
 uvr_http_request *uvr_http_request_parser_release(uvr_http_request_parser *parser);
+uvr_http_request *uvr_http_request_parser_peek(uvr_http_request_parser *parser);
 
 #endif // __UVRESTFUL_HTTP_PARSER_H__

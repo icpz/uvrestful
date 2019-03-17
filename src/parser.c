@@ -162,12 +162,19 @@ uvr_http_request_parser_error \
     uvr_http_request_parser_update(uvr_http_request_parser *p, const uint8_t *data, size_t len) {
         uvr_http_request_parser_error ret = UVR_HTTP_REQ_PARSER_PARTIAL;
         int i, done;
-        for (i = 0; i < len; ++i) {
-            utarray_push_back(p->buffer, data + i);
+        UT_array *dest = p->buffer;
+        if (p->state == PARSING_DONE) {
+            ret = UVR_HTTP_REQ_PARSER_OK;
+            dest = p->request->body;
         }
-        while ((ret = __try_next_stage(p, &done)) == UVR_HTTP_REQ_PARSER_PARTIAL) {
-            if (!done) {
-                break;
+        for (i = 0; i < len; ++i) {
+            utarray_push_back(dest, data + i);
+        }
+        if (p->state != PARSING_DONE) {
+            while ((ret = __try_next_stage(p, &done)) == UVR_HTTP_REQ_PARSER_PARTIAL) {
+                if (!done) {
+                    break;
+                }
             }
         }
         return ret;
@@ -178,3 +185,8 @@ uvr_http_request *uvr_http_request_parser_release(uvr_http_request_parser *parse
     parser->request = NULL;
     return r;
 }
+
+uvr_http_request *uvr_http_request_parser_peek(uvr_http_request_parser *parser) {
+    return parser->request;
+}
+
