@@ -45,7 +45,6 @@ void vstr_hash_map_drop(vstr_hash_map *h) {
 
 void vstr_hash_map_put(vstr_hash_map *h, const char *key, void *value) {
     __hash_node *n = __hash_node_new(key, value);
-    n->value = value;
     HASH_ADD(hh, h->head, key, utstring_len(&n->key), n);
 }
 
