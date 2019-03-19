@@ -87,17 +87,19 @@ size_t uvr_http_fields_size(const uvr_http_fields *fields) {
 
 struct walk_ctx {
     uvr_http_fields_walk_cb cb;
+    uvr_http_fields *fields;
     void *arg;
 };
 
 static void __fields_walk_cb(vstr_hash_map *h, const char *k, void *v, void *arg) {
     struct walk_ctx *ctx = (struct walk_ctx *)arg;
-    ctx->cb(k, utstring_body((UT_string *)v), ctx->arg);
+    ctx->cb(ctx->fields, k, utstring_body((UT_string *)v), ctx->arg);
 }
 
-void uvr_http_fields_walk(const uvr_http_fields *fields, uvr_http_fields_walk_cb cb, void *arg) {
+void uvr_http_fields_walk(uvr_http_fields *fields, uvr_http_fields_walk_cb cb, void *arg) {
     struct walk_ctx ctx;
     ctx.cb = cb;
+    ctx.fields = fields;
     ctx.arg = arg;
     vstr_hash_map_walk(fields->head, __fields_walk_cb, &ctx);
 }

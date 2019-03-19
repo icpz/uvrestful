@@ -44,7 +44,7 @@ void uvr_http_response_append(uvr_http_response *r, const uint8_t *buf, size_t l
     }
 }
 
-static void __kv_walk_cb(const char *key, const char *value, void *arg) {
+static void __kv_walk_cb(uvr_http_fields *f, const char *key, const char *value, void *arg) {
     UT_string *s = (UT_string *)arg;
     utstring_printf(s, "%s: %s\r\n", key, value);
 }
