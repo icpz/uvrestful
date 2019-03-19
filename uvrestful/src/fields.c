@@ -66,6 +66,8 @@ void uvr_http_fields_parse_header(uvr_http_fields *f, const char *line, size_t l
     utstring_bincpy(&value, colon, line + len - colon);
 
     uvr_http_fields_set(f, utstring_body(&key), utstring_body(&value));
+    utstring_done(&key);
+    utstring_done(&value);
 }
 
 void uvr_http_fields_set(uvr_http_fields *fields, const char *key, const char *value) {
@@ -73,7 +75,10 @@ void uvr_http_fields_set(uvr_http_fields *fields, const char *key, const char *v
     utstring_new(v);
     utstring_bincpy(v, value, strlen(value));
 
-    vstr_hash_map_replace(fields->head, key, v);
+    void *e = vstr_hash_map_replace(fields->head, key, v);
+    if (e) {
+        utstring_free((UT_string *)e);
+    }
 }
 
 const char *uvr_http_fields_get(const uvr_http_fields *fields, const char *key) {
