@@ -25,7 +25,7 @@ uvr_http_request_header *uvr_http_request_header_new() {
     utstring_new(p->uri);
     utstring_new(p->version);
     p->fields = uvr_http_fields_new();
-    p->param = uvr_http_fields_new();
+    p->params = uvr_http_fields_new();
     return p;
 }
 
@@ -33,7 +33,7 @@ void uvr_http_request_header_drop(uvr_http_request_header *hdr) {
     utstring_free(hdr->uri);
     utstring_free(hdr->version);
     uvr_http_fields_drop(hdr->fields);
-    uvr_http_fields_drop(hdr->param);
+    uvr_http_fields_drop(hdr->params);
     free(hdr);
 }
 
@@ -52,3 +52,39 @@ void uvr_http_request_drop(uvr_http_request *req) {
     free(req);
 }
 
+static void __parse_param_string(uvr_http_fields *f, char *s) {
+    const char *delim = "&";
+    char *kv = NULL;
+    for (kv = strtok(s, delim); kv; kv = strtok(NULL, delim)) {
+        char *eq = strchr(kv, '=');
+        if (!eq) {
+            continue;
+        }
+        *eq = 0;
+        uvr_http_fields_set(f, kv, eq + 1);
+        *eq = '=';
+    }
+}
+
+void uvr_http_request_fill_params(uvr_http_request *req) {
+    char *pstart = strchr(utstring_body(req->header->uri), '?');
+    if (pstart) {
+        size_t ulen = pstart - utstring_body(req->header->uri);
+        __parse_param_string(req->header->params, pstart + 1);
+        UT_string *s, *t = NULL;
+        utstring_new(s);
+        utstring_bincpy(s, utstring_body(req->header->uri), ulen);
+        t = req->header->uri;
+        req->header->uri = s;
+        s = t;
+        utstring_free(s);
+    }
+    const char *ctype = uvr_http_fields_get(req->header->fields, "Content-Type");
+    if (ctype && strcmp(ctype, "application/x-www-form-urlencoded") == 0) {
+        UT_string s;
+        utstring_init(&s);
+        utstring_bincpy(&s, utarray_front(req->body), utarray_len(req->body));
+        __parse_param_string(req->header->params, utstring_body(&s));
+        utstring_done(&s);
+    }
+}

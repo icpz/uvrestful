@@ -83,6 +83,7 @@ static void __conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t 
             return;
         }
         c->req = uvr_http_request_parser_release(c->parser);
+        uvr_http_request_fill_params(c->req);
         __conn_call_handler(c);
     } else {
         utstring_clear(c->resp->header->version);

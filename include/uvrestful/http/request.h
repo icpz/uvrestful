@@ -22,7 +22,7 @@ typedef struct {
     UT_string *uri;
     UT_string *version;
     uvr_http_fields *fields;
-    uvr_http_fields *param;
+    uvr_http_fields *params;
 } uvr_http_request_header;
 
 uvr_http_request_header *uvr_http_request_header_new();
@@ -36,5 +36,6 @@ typedef struct {
 
 uvr_http_request *uvr_http_request_new();
 void uvr_http_request_drop(uvr_http_request *req);
+void uvr_http_request_fill_params(uvr_http_request *req);
 
 #endif // __UVRESTFUL_HTTP_REQUEST_H__
