@@ -49,11 +49,17 @@ static void __kv_walk_cb(const char *key, const char *value, void *arg) {
     utstring_printf(s, "%s: %s\r\n", key, value);
 }
 
-UT_string *uvr_http_response_serialize(uvr_http_response *r) {
-    UT_string *res = NULL;
-    utstring_new(res);
+UT_array *uvr_http_response_serialize(uvr_http_response *r) {
+    UT_icd ut_uint8_icd = { sizeof(uint8_t), NULL, NULL, NULL };
+    UT_array *res = NULL;
+    UT_string hbuf;
+    int i = 0;
+
+    utarray_new(res, &ut_uint8_icd);
+    utstring_init(&hbuf);
+
     utstring_printf(
-        res, "%s %d %s\r\n",
+        &hbuf, "%s %d %s\r\n",
         utstring_body(r->header->version),
         r->header->status_code,
         uvr_http_response_header_message(r->header)
@@ -63,10 +69,15 @@ UT_string *uvr_http_response_serialize(uvr_http_response *r) {
         snprintf(content_len_buf, sizeof content_len_buf, "%zu", (size_t)utarray_len(r->body));
         uvr_http_fields_set(r->header->fields, "Content-Length", content_len_buf);
     }
-    uvr_http_fields_walk(r->header->fields, __kv_walk_cb, res);
-    utstring_printf(res, "\r\n");
+    uvr_http_fields_walk(r->header->fields, __kv_walk_cb, &hbuf);
+    utstring_printf(&hbuf, "\r\n");
+
+    for (i = 0; i < utstring_len(&hbuf); ++i) {
+        utarray_push_back(res, utstring_body(&hbuf) + i);
+    }
+    utstring_done(&hbuf);
     if (utarray_len(r->body)) {
-        utstring_bincpy(res, utarray_front(r->body), utarray_len(r->body));
+        utarray_concat(res, r->body);
     }
     return res;
 }

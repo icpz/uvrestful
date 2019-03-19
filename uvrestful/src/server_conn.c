@@ -35,7 +35,7 @@ void conn_drop(conn_t *c) {
         uvr_http_request_drop(c->req);
     }
     if (c->resp_buf) {
-        utstring_free(c->resp_buf);
+        utarray_free(c->resp_buf);
     }
     uv_close((uv_handle_t *)c->socket, __socket_close_cb);
 }
@@ -143,8 +143,8 @@ static void __conn_write_done(uv_write_t* req, int status) {
 
 static void __conn_write_resp(conn_t *c) {
     c->resp_buf   = uvr_http_response_serialize(c->resp);
-    c->uvbuf.base = utstring_body(c->resp_buf);
-    c->uvbuf.len  = utstring_len(c->resp_buf);
+    c->uvbuf.base = utarray_front(c->resp_buf);
+    c->uvbuf.len  = utarray_len(c->resp_buf);
     int ret = 0;
     ret = uv_write(&c->write_req, (uv_stream_t *)c->socket, &c->uvbuf, 1, __conn_write_done);
     if (ret) {

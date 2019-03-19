@@ -16,7 +16,7 @@ typedef struct {
     uvr_http_request_parser *parser;
     uvr_http_request *req;
     uvr_http_response *resp;
-    UT_string *resp_buf;
+    UT_array *resp_buf;
     vstr_hash_map *handlers;
     int closing;
     char buf[2048];

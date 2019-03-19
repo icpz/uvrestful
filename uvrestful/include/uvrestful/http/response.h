@@ -24,6 +24,6 @@ typedef struct {
 uvr_http_response *uvr_http_response_new();
 void uvr_http_response_drop(uvr_http_response *r);
 void uvr_http_response_append(uvr_http_response *r, const uint8_t *buf, size_t len);
-UT_string *uvr_http_response_serialize(uvr_http_response *r);
+UT_array *uvr_http_response_serialize(uvr_http_response *r);
 
 #endif // __UVRESTFUL_HTTP_RESPONSE_H__
