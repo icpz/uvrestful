@@ -1,8 +1,8 @@
 
-#define HASH_FUNCTION(keyptr, keylen, hashv) \
-    HASH_JEN(utstring_body((UT_string *)keyptr), keylen, hashv)
+#define HASH_FUNCTION(kptr, keylen, hashv) \
+    HASH_JEN(utstring_body((UT_string *)(kptr)), utstring_len((UT_string *)(kptr)), hashv)
 #define HASH_KEYCMP(a, b, n) \
-    memcmp(utstring_body((UT_string *)a), utstring_body((UT_string *)b), n)
+    utstring_cmp((UT_string *)(a), (UT_string *)(b))
 #include <uthash.h>
 #include <utstring.h>
 
@@ -17,6 +17,11 @@ typedef struct {
 struct vstr_hash_map {
     __hash_node *head;
 };
+
+static int utstring_cmp(UT_string *a, UT_string *b) {
+    int result = utstring_len(a) - utstring_len(b);
+    return result ? result : memcmp(utstring_body(a), utstring_body(b), utstring_len(a));
+}
 
 static __hash_node *__hash_node_new(const char *k, void *v) {
     __hash_node *n = (__hash_node *)malloc(sizeof *n);
