@@ -65,14 +65,17 @@ static void __server_on_conn(uv_stream_t* server, int status);
 
 void uvrestful_server_start(uvrestful_server *s, uv_loop_t *loop, uint16_t port) {
     struct sockaddr_storage sock;
+    uv_ip6_addr("::", port, (struct sockaddr_in6 *)&sock);
+    uvrestful_server_start_sockaddr(s, loop, (struct sockaddr *)&sock);
+}
+
+void uvrestful_server_start_sockaddr(uvrestful_server *s, uv_loop_t *loop, struct sockaddr *addr) {
     if (s->running) { return; }
     s->running = 1;
     uv_tcp_init(loop, s->server);
-    uv_ip6_addr("::", port, (struct sockaddr_in6 *)&sock);
-    uv_tcp_bind(s->server, (struct sockaddr *)&sock, 0);
+    uv_tcp_bind(s->server, addr, 0);
     uv_listen((uv_stream_t *)s->server, 2048, __server_on_conn);
 }
-
 void uvrestful_server_stop(uvrestful_server *s) {
     if (!s->running) { return; }
     s->running = 0;
