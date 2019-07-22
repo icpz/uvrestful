@@ -1,6 +1,8 @@
 #ifndef __UVRESTFUL_HTTP_FIELDS_H__
 #define __UVRESTFUL_HTTP_FIELDS_H__
 
+#include <stdint.h>
+
 typedef struct uvr_http_fields_s uvr_http_fields;
 typedef void (*uvr_http_fields_walk_cb)(uvr_http_fields *f, const char *k, const char *v, void *arg);
 
